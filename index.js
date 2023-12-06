@@ -16,11 +16,65 @@ module.exports.clear = async (title) => {
     await db.write([]);
 }
 
-module.exports.showAll = async () => {
-    //读取之前的任务
-    const list = await db.read();
-    //打印之前任务
 
+function markAsDone() {
+    list[index].done = true;
+    db.write(list);
+}
+function markAsUndone() {
+    list[index].done = false;
+    db.write(list);
+}
+function updateTitle(list, index) {
+    inquirer.prompt({
+        type: 'input',
+        name: 'title',
+        message: "新的标题",
+        default: list[index].title
+    }).then((answers) => {
+        list[index].title = answers.title;
+        db.write(list);
+    });
+}
+function remove(list, index) {
+    list.splice(index, 1);
+    db.write(list);
+}
+
+function askForAction(list, index) {
+    const actions = { markAsDone, markAsUndone, updateTitle, remove };
+    inquirer.prompt({
+        type: 'list',
+        name: 'action',
+        message: '请选择操作',
+        choices: [
+            { name: '已完成', value: 'markAsDone' },
+            { name: '未完成', value: 'markAsUndone' },
+            { name: '改标题', value: 'updateTitle' },
+            { name: '删除', value: 'remove' },
+            { name: '退出', value: 'quit' },
+        ]
+    }).then(answers2 => {
+        const action = actions[answers2.action];
+        action && action(list, index);
+    })
+}
+
+function askForCreateTask(list) {
+    inquirer.prompt({
+        type: 'input',
+        name: 'title',
+        message: "输入任务标题",
+    }).then((answers) => {
+        list.push({
+            title: answers.title,
+            done: false
+        })
+        db.write(list);
+    });
+}
+
+function printTasks(list) {
     inquirer
         .prompt({
             type: 'list',
@@ -34,57 +88,18 @@ module.exports.showAll = async () => {
             const index = parseInt(answers.index);
             if (index >= 0) {
                 //选中一个任务
-                inquirer.prompt({
-                    type: 'list',
-                    name: 'action',
-                    message: '请选择操作',
-                    choices: [
-                        { name: '已完成', value: 'markAsDone' },
-                        { name: '未完成', value: 'markAsUndone' },
-                        { name: '改标题', value: 'updateTitle' },
-                        { name: '删除', value: 'remove' },
-                        { name: '退出', value: 'quit' },
-                    ]
-                }).then(answers2 => {
-                    switch (answers2.action) {
-                        case 'markAsDone':
-                            list[index].done = true;
-                            db.write(list);
-                            break;
-                        case 'markAsUndone':
-                            list[index].done = false;
-                            db.write(list);
-                            break;
-                        case 'updateTitle':
-                            inquirer.prompt({
-                                type: 'input',
-                                name: 'title',
-                                message: "新的标题",
-                                default: list[index].title
-                            }).then((answers) => {
-                                list[index].title = answers.title;
-                                db.write(list);
-                            });
-                            break;
-                        case 'remove':
-                            list.splist(index, 1);
-                            db.write(list);
-                            break;
-                    }
-                })
+                askForAction(list, index);
             } else if (index === -2) {
                 //创建任务
-                inquirer.prompt({
-                    type: 'input',
-                    name: 'title',
-                    message: "输入任务标题",
-                }).then((answers) => {
-                    list.push({
-                        title: answers.title,
-                        done: false
-                    })
-                    db.write(list);
-                });
+                askForCreateTask(list);
             }
         });
+}
+
+module.exports.showAll = async () => {
+    //读取之前的任务
+    const list = await db.read();
+    //打印之前任务
+    printTasks(list);
+
 }
