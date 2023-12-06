@@ -12,16 +12,15 @@ module.exports.add = async (title) => {
     await db.write(list);
 }
 
-module.exports.clear = async (title) => {
+module.exports.clear = async () => {
     await db.write([]);
 }
 
-
-function markAsDone() {
+function markAsDone(list, index) {
     list[index].done = true;
     db.write(list);
 }
-function markAsUndone() {
+function markAsUndone(list, index) {
     list[index].done = false;
     db.write(list);
 }
@@ -42,7 +41,7 @@ function remove(list, index) {
 }
 
 function askForAction(list, index) {
-    const actions = { markAsDone, markAsUndone, updateTitle, remove };
+    const actions = {markAsDone,markAsUndone,updateTitle,remove};
     inquirer.prompt({
         type: 'list',
         name: 'action',
@@ -56,7 +55,7 @@ function askForAction(list, index) {
         ]
     }).then(answers2 => {
         const action = actions[answers2.action];
-        action && action(list, index);
+        action && action(list,index);
     })
 }
 
@@ -75,15 +74,14 @@ function askForCreateTask(list) {
 }
 
 function printTasks(list) {
-    inquirer
-        .prompt({
-            type: 'list',
-            name: 'index',
-            message: '请选出你想操作的任务',
-            choices: [{ name: '退出', value: '-1' }, ...list.map((task, index) => {
-                return { name: `${task.done ? '[x]' : '[_]'} ${index + 1} -  ${task.title}`, value: index };
-            }), { name: '创建任务', value: '-2' }]
-        })
+    inquirer.prompt({
+        type: 'list',
+        name: 'index',
+        message: '请选出你想操作的任务',
+        choices: [{ name: '退出', value: '-1' }, ...list.map((task, index) => {
+            return { name: `${task.done ? '[x]' : '[_]'} ${index + 1} -  ${task.title}`, value: index };
+        }), { name: '创建任务', value: '-2' }]
+    })
         .then((answers) => {
             const index = parseInt(answers.index);
             if (index >= 0) {
@@ -95,6 +93,7 @@ function printTasks(list) {
             }
         });
 }
+
 
 module.exports.showAll = async () => {
     //读取之前的任务
