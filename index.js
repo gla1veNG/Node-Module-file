@@ -6,7 +6,9 @@ module.exports.add = async (title) => {
     //往里面添加一个 title 任务
     list.push({title,done:false});
     //存储任务到文件
-    await db.write(list);
+    await db.write(list);  
+}
 
-    
+module.exports.clear = async (title)=>{
+    await db.write([]);
 }
