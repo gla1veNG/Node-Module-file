@@ -9,4 +9,7 @@ describe('db', () => {
         const list = await db.read('/xxx');
         expect(list).toStrictEqual(data);
     });
+    it('can write', async () => {
+        
+    });
 })
