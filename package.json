@@ -1,12 +1,20 @@
 {
   "name": "nodes-todo",
-  "bin":{"t":"cli.js"},
-  "files":["*.js"],
+  "bin": {
+    "t": "cli.js"
+  },
+  "files": [
+    "*.js"
+  ],
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {"test": "jest"},
   "dependencies": {
     "commander": "^3.0.2",
     "inquirer": "^7.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
