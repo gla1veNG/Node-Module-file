@@ -7,7 +7,7 @@ const dbPath = p.join(home, '.todo');
 const db = {
     read(path = dbPath) {
         return new Promise((resolve, reject) => {
-            fs.readFile(dbPath, { flag: 'a+' }, (error, data) => {
+            fs.readFile(path, { flag: 'a+' }, (error, data) => {
                 if (error) { return reject(error); }
                 let list
                 try {
